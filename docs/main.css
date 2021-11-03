@@ -12,6 +12,13 @@ body {
   color: #ffffff;
 }
 
+.cg-intro__gh {
+  position: absolute;
+  right: 1rem;
+  top: 1rem;
+  color: #ffffff;
+}
+
 .cg-intro__title {
   margin: 0;
   padding: 0;
