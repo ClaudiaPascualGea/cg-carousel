@@ -83,9 +83,9 @@ class CgCarousel {
   };
 
   /**
-   * On drag start.
+   * On swipe start.
    */
-  onDragStart (e) {
+  onSwipeStart (e) {
     if (!this.isTouchableDevice() || !e.changedTouches) return;
     const touch = e.changedTouches[0];
     this.swipeStartX = touch.pageX;
@@ -93,17 +93,17 @@ class CgCarousel {
   };
 
   /**
-   * On drag end.
+   * On swipe end.
    */
-  onDragEnd (e) {
+  onSwipeEnd (e) {
     if (!this.isTouchableDevice() || !e.changedTouches) return;
     const touch = e.changedTouches[0];
     const distX = touch.pageX - this.swipeStartX;
     const distY = touch.pageY - this.swipeStartY;
     if (Math.abs(distX) >= this.swipeThreshold && Math.abs(distY) <= this.swipeRestraint) {
-      this.swipeDir = (distX < 0)? 'left' : 'right';
+      this.swipeDir = (distX < 0) ? 'left' : 'right';
     } else if (Math.abs(distY) >= this.swipeThreshold && Math.abs(distX) <= this.swipeRestraint) {
-      this.swipeDir = (distY < 0)? 'up' : 'down';
+      this.swipeDir = (distY < 0) ? 'up' : 'down';
     }
 
     this.handleSwipe();
@@ -118,11 +118,11 @@ class CgCarousel {
     window.addEventListener('resize', () => this.onResize());
 
     // Swipe Events
-    this.container.addEventListener('touchstart', (e) => this.onDragStart(e), {
+    this.container.addEventListener('touchstart', (e) => this.onSwipeStart(e), {
       passive: true
     });
     this.container.addEventListener('touchmove', (e) => e.preventDefault(), false);
-    this.container.addEventListener('touchend', (e) => this.onDragEnd(e), {
+    this.container.addEventListener('touchend', (e) => this.onSwipeEnd(e), {
       passive: true
     });
   };
@@ -345,7 +345,7 @@ class CgCarousel {
    */
   getPageSize () {
     return this.maxIndex;
-  }
+  };
 }
 
 window.CgCarousel = CgCarousel;
