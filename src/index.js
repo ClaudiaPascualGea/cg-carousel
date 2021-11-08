@@ -179,9 +179,9 @@ class CgCarousel {
    * Clear Carousel Styles.
    */
   clearCarouselStyles () {
-    const containerStyles = ['gridAutoColumns', 'gridGap'];
+    const containerStyles = ['grid-auto-columns', 'gap', 'transition', 'left'];
     containerStyles.map(style => this.container.style.removeProperty(style));
-    const slideStyles = ['gridColumnStart', 'gridColumnEnd', 'gridRowStart', 'gridRowEnd', 'left'];
+    const slideStyles = ['animation', 'grid-column-start', 'grid-column-end', 'grid-row-start', 'grid-row-end', 'left'];
     this.slides.forEach(slide => {
       slideStyles.map(style => slide.style.removeProperty(style));
     });
@@ -237,6 +237,7 @@ class CgCarousel {
     this.setTransition();
     this.setButtonsVisibility();
     this.setUpAutoplay();
+    this.currentIndex = 0;
     this.hook('built');
   };
 
@@ -315,6 +316,7 @@ class CgCarousel {
    * Move to Slide.
    */
   moveToSlide (index) {
+    if (index === this.currentIndex) return;
     const action = index > this.currentIndex ? 'next' : 'prev';
     this.moveSlide(index, action);
   };
