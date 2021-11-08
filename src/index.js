@@ -36,6 +36,15 @@ class CgCarousel {
     this.maxIndex = 0;
     this.singleSlideMode = false;
 
+    // Swipe Event
+    this.swipeStartX = undefined;
+    this.swipeStartY = undefined;
+    this.swipeThreshold = 150; // Required min distance traveled to be considered swipe.
+    this.swipeRestraint = 100; // Maximum distance allowed at the same time in perpendicular direction.
+    this.swipeDir = undefined;
+
+    if (!this.container) return;
+
     this.addEventListeners();
     this.initCarousel();
   };
@@ -48,11 +57,74 @@ class CgCarousel {
   };
 
   /**
+   * Is touchable device?
+   */
+  isTouchableDevice () {
+    return window.matchMedia("(pointer: coarse)").matches;
+  };
+
+  /**
+   * Handle Swipe.
+   */
+  handleSwipe () {
+    switch (this.swipeDir) {
+      case 'top':
+      case 'bottom':
+        break;
+      case 'left':
+        this.next();
+        break;
+      case 'right':
+        this.prev();
+        break;
+      default:
+        break;
+    }
+  };
+
+  /**
+   * On drag start.
+   */
+  onDragStart (e) {
+    if (!this.isTouchableDevice() || !e.changedTouches) return;
+    const touch = e.changedTouches[0];
+    this.swipeStartX = touch.pageX;
+    this.swipeStartY = touch.pageY;
+  };
+
+  /**
+   * On drag end.
+   */
+  onDragEnd (e) {
+    if (!this.isTouchableDevice() || !e.changedTouches) return;
+    const touch = e.changedTouches[0];
+    const distX = touch.pageX - this.swipeStartX;
+    const distY = touch.pageY - this.swipeStartY;
+    if (Math.abs(distX) >= this.swipeThreshold && Math.abs(distY) <= this.swipeRestraint) {
+      this.swipeDir = (distX < 0)? 'left' : 'right';
+    } else if (Math.abs(distY) >= this.swipeThreshold && Math.abs(distX) <= this.swipeRestraint) {
+      this.swipeDir = (distY < 0)? 'up' : 'down';
+    }
+
+    this.handleSwipe();
+  };
+
+  /**
    * Add Event Listeners.
    */
   addEventListeners () {
+    // Resize Events
     window.addEventListener('orientationchange', () => this.onResize());
     window.addEventListener('resize', () => this.onResize());
+
+    // Swipe Events
+    this.container.addEventListener('touchstart', (e) => this.onDragStart(e), {
+      passive: true
+    });
+    this.container.addEventListener('touchmove', (e) => e.preventDefault(), false);
+    this.container.addEventListener('touchend', (e) => this.onDragEnd(e), {
+      passive: true
+    });
   };
 
   /**
