@@ -27,6 +27,10 @@ class CgCarousel {
     };
     this.options = this.initialOptions;
 
+    // Transitions
+    this.animationStart = undefined;
+    this.animation = undefined;
+    this.animationCurrentTrans = 0;
 
     // Functional
     this.autoplayInterval = undefined;
@@ -34,7 +38,6 @@ class CgCarousel {
     this.isButtonLeftDisabled = false;
     this.currentIndex = 0;
     this.maxIndex = 0;
-    this.singleSlideMode = false;
 
     // Swipe Event
     this.swipeStartX = undefined;
@@ -188,22 +191,10 @@ class CgCarousel {
   };
 
   /**
-   * Set Single Mode Styles.
+   * Set Carousel Classes.
    */
-  setSingleModeStyles () {
-    this.slides.forEach((slide, index) => {
-      slide.style.gridColumnStart = 1;
-      slide.style.gridColumnEnd = 1;
-      slide.style.gridRowStart = 1;
-      slide.style.gridRowEnd = 1;
-      slide.style.left = index === 0 ? 0 : '100%';
-    });
-  };
-
-  /**
-   * Set Multiple Mode Styles.
-   */
-  setMultipleModeStyles () {
+  setCarouselStyles () {
+    if (!this.slides) return;
     const slidesPerView = this.options.slidesPerView > this.slidesLength ? this.slidesLength : this.options.slidesPerView;
     const slideWidth = 100 / slidesPerView;
     const gap = (this.options.spacing * (slidesPerView - 1)) / slidesPerView;
@@ -212,29 +203,12 @@ class CgCarousel {
   };
 
   /**
-   * Set Carousel Classes.
-   */
-  setCarouselStyles () {
-    if (!this.slides) return;
-    this.singleSlideMode ? this.setSingleModeStyles() : this.setMultipleModeStyles();
-  };
-
-  /**
-   * Set Slides Transition.
-   */
-  setTransition () {
-    this.container.style.transition = `left ${this.options.transitionSpeed}ms`;
-  };
-
-  /**
    * Build Carousel with current Options.
    */
   buildCarousel () {
     this.maxIndex = Math.ceil(this.slidesLength / this.options.slidesPerView);
-    this.singleSlideMode = this.options.slidesPerView === 1;
     this.clearCarouselStyles();
     this.setCarouselStyles();
-    this.setTransition();
     this.setButtonsVisibility();
     this.setUpAutoplay();
     this.currentIndex = 0;
@@ -263,35 +237,79 @@ class CgCarousel {
   };
 
   /**
-   * Move Single Slide.
+   * Cancel Animation frame.
    */
-  moveSingleSlide (index, action) {
-    this.removeAnimationStyles();
-    const transition = action === 'next' ? 'slideOutLeft' : 'slideOutRight';
-    this.slides[index].style.left = action === 'next' ? '100%' : '-100%';
-    this.slides[this.currentIndex].style.left = 0;
-    this.slides[index].style.animation = `slideIn ${this.options.transitionSpeed}ms forwards`;
-    this.slides[this.currentIndex].style.animation = `${transition} ${this.options.transitionSpeed}ms forwards`;
-  };
+  moveAnimateAbort () {
+    if (this.animation) {
+      cancelAnimationFrame(this.animation);
+      this.animationCurrentTrans = this.currentIndex * -100;
+      this.animation = null;
+    }
+
+    this.animationStart = null;
+  }
 
   /**
-   * Move Multiple Slides.
+   * Animate Left.
+   * @param timestamp
+   * @param trans
+   * @param gap
+   * @param duration
    */
-  moveMultipleSlides (index) {
-    const trans = index * -100;
-    const gap = this.options.spacing * index;
-    this.container.style.left = `calc(${trans}% - ${gap}px)`;
+  animateLeft (timestamp, trans, gap, duration) {
+    const runtime = timestamp - this.animationStart;
+    const progress = Math.min(runtime / duration, 1);
+    const dist = parseInt((trans * progress) + (this.animationCurrentTrans * (1 - progress))).toFixed(2);
+    this.container.style.left = `calc(${dist}% - ${gap}px)`;
+
+    if (runtime >= duration) {
+      this.animationCurrentTrans = trans;
+      return;
+    }
+
+    requestAnimationFrame(timestamp => {
+      this.animateLeft(timestamp, trans, gap, duration)
+    })
   };
 
   /**
    * Move Slide.
    */
-  moveSlide (index, action) {
-    this.singleSlideMode ? this.moveSingleSlide(index, action) : this.moveMultipleSlides(index);
+  moveSlide (index) {
+    this.moveAnimateAbort();
+    const gap = this.options.spacing * index;
+    const trans = index * -100;
+
+    this.animation = requestAnimationFrame(timestamp => {
+      this.animationStart = timestamp;
+      this.animateLeft(timestamp, trans, gap, this.options.transitionSpeed);
+    });
+
     this.currentIndex = index;
     this.setUpAutoplay();
     this.setButtonsVisibility();
-    this.hook('moved');
+  };
+
+  /**
+   * Set Infinity.
+   */
+  setInfinite () {
+    const count = this.options.slidesPerView * this.maxIndex;
+    console.log('SET INFINITE', count);
+    this.slides.forEach((slide, idx) => {
+      if (idx >= this.options.slidesPerView) return;
+      slide.style.left = `calc((100% * ${count}) + (${this.options.spacing}px * ${count}))`;
+    })
+  };
+
+  /**
+   * Clear Infinity.
+   */
+  clearInfinite () {
+    this.slides.forEach((slide, idx) => {
+      if (idx >= this.options.slidesPerView) return;
+      slide.style.removeProperty('left');
+    })
   };
 
   /**
@@ -300,7 +318,7 @@ class CgCarousel {
   next () {
     const nextIndex = this.currentIndex === this.maxIndex -1 ? 0 : this.currentIndex + 1;
     if (!this.options.loop &&  nextIndex < this.currentIndex) return;
-    this.moveSlide(nextIndex, 'next');
+    this.moveSlide(nextIndex);
   };
 
   /**
@@ -309,7 +327,7 @@ class CgCarousel {
   prev () {
     const nextIndex = this.currentIndex === 0 ? this.maxIndex - 1 : this.currentIndex - 1;
     if (!this.options.loop && nextIndex > this.currentIndex) return;
-    this.moveSlide(nextIndex, 'prev');
+    this.moveSlide(nextIndex);
   };
 
   /**
@@ -317,8 +335,7 @@ class CgCarousel {
    */
   moveToSlide (index) {
     if (index === this.currentIndex) return;
-    const action = index > this.currentIndex ? 'next' : 'prev';
-    this.moveSlide(index, action);
+    this.moveSlide(index);
   };
 
   /**
