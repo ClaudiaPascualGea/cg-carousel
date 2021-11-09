@@ -34,12 +34,19 @@ class CgCarousel {
     this.animation = undefined;
     this.animationCurrentTrans = 0;
 
+    // Animations
+    window.requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame ||
+      window.webkitRequestAnimationFrame || window.msRequestAnimationFrame;
+    window.cancelAnimationFrame = window.cancelAnimationFrame || window.mozCancelAnimationFrame;
+
+
     // Functional
     this.autoplayInterval = undefined;
     this.isButtonRightDisabled = false;
     this.isButtonLeftDisabled = false;
     this.currentIndex = 0;
     this.maxIndex = 0;
+    this.isInfinite = false;
 
     // Swipe Event
     this.swipeStartX = undefined;
@@ -186,7 +193,7 @@ class CgCarousel {
   clearCarouselStyles () {
     const containerStyles = ['grid-auto-columns', 'gap', 'transition', 'left'];
     containerStyles.map(style => this.container.style.removeProperty(style));
-    const slideStyles = ['animation', 'grid-column-start', 'grid-column-end', 'grid-row-start', 'grid-row-end', 'left'];
+    const slideStyles = ['grid-column-start', 'grid-column-end', 'grid-row-start', 'grid-row-end', 'left'];
     this.slides.forEach(slide => {
       slideStyles.map(style => slide.style.removeProperty(style));
     });
@@ -230,27 +237,15 @@ class CgCarousel {
   };
 
   /**
-   * Remove animation styles
-   */
-  removeAnimationStyles () {
-    this.slides.forEach(slide => {
-      slide.style.removeProperty('animation');
-      slide.style.left = '100%';
-    });
-  };
-
-  /**
    * Cancel Animation frame.
    */
   moveAnimateAbort () {
     if (this.animation) {
-      cancelAnimationFrame(this.animation);
-      this.animationCurrentTrans = this.currentIndex * -100;
+      window.cancelAnimationFrame(this.animation);
       this.animation = null;
+      this.animationStart = null;
     }
-
-    this.animationStart = null;
-  }
+  };
 
   /**
    * Animate Left.
@@ -266,11 +261,12 @@ class CgCarousel {
     this.track.style.left = `calc(${dist}% - ${gap}px)`;
 
     if (runtime >= duration) {
-      this.animationCurrentTrans = trans;
+      this.animationCurrentTrans = this.currentIndex * -100;
+      this.isInfinite && this.clearInfinite();
       return;
     }
 
-    requestAnimationFrame(timestamp => {
+    this.animation = window.requestAnimationFrame(timestamp => {
       this.animateLeft(timestamp, trans, gap, duration)
     })
   };
@@ -278,17 +274,17 @@ class CgCarousel {
   /**
    * Move Slide.
    */
-  moveSlide (index) {
+  moveSlide (index, cIndex) {
     this.moveAnimateAbort();
     const gap = this.options.spacing * index;
     const trans = index * -100;
 
-    this.animation = requestAnimationFrame(timestamp => {
+    this.animation = window.requestAnimationFrame((timestamp) => {
       this.animationStart = timestamp;
       this.animateLeft(timestamp, trans, gap, this.options.transitionSpeed);
     });
+    this.currentIndex = cIndex;
 
-    this.currentIndex = index;
     this.setUpAutoplay();
     this.setButtonsVisibility();
   };
@@ -298,7 +294,7 @@ class CgCarousel {
    */
   setInfinite () {
     const count = this.options.slidesPerView * this.maxIndex;
-    console.log('SET INFINITE', count);
+    this.isInfinite = true;
     this.slides.forEach((slide, idx) => {
       if (idx >= this.options.slidesPerView) return;
       slide.style.left = `calc((100% * ${count}) + (${this.options.spacing}px * ${count}))`;
@@ -309,6 +305,8 @@ class CgCarousel {
    * Clear Infinity.
    */
   clearInfinite () {
+    this.isInfinite = false;
+    this.track.style.left = 0;
     this.slides.forEach((slide, idx) => {
       if (idx >= this.options.slidesPerView) return;
       slide.style.removeProperty('left');
@@ -320,8 +318,14 @@ class CgCarousel {
    */
   next () {
     const nextIndex = this.currentIndex === this.maxIndex -1 ? 0 : this.currentIndex + 1;
-    if (!this.options.loop &&  nextIndex < this.currentIndex) return;
-    this.moveSlide(nextIndex);
+    if (!this.options.loop && nextIndex < this.currentIndex) return;
+
+    if (nextIndex < this.currentIndex) {
+      this.setInfinite();
+      this.moveSlide(this.currentIndex + 1, nextIndex);
+    } else {
+      this.moveSlide(nextIndex, nextIndex);
+    }
   };
 
   /**
@@ -330,7 +334,8 @@ class CgCarousel {
   prev () {
     const nextIndex = this.currentIndex === 0 ? this.maxIndex - 1 : this.currentIndex - 1;
     if (!this.options.loop && nextIndex > this.currentIndex) return;
-    this.moveSlide(nextIndex);
+
+    this.moveSlide(nextIndex, nextIndex);
   };
 
   /**
