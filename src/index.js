@@ -6,7 +6,9 @@ class CgCarousel {
     // Selectors
     this.container = document.querySelector(selector);
     this.slidesSelector = options.slidesSelector || '.js-carousel__slide';
+    this.trackSelector = options.trackSelector || '.js-carousel__track';
     this.slides = [];
+    this.track = undefined;
     this.slidesLength = 0;
 
     // Breakpoints
@@ -198,8 +200,8 @@ class CgCarousel {
     const slidesPerView = this.options.slidesPerView > this.slidesLength ? this.slidesLength : this.options.slidesPerView;
     const slideWidth = 100 / slidesPerView;
     const gap = (this.options.spacing * (slidesPerView - 1)) / slidesPerView;
-    this.container.style.gridAutoColumns = `calc(${slideWidth}% - ${gap}px)`;
-    this.container.style.gridGap = `${this.options.spacing}px`;
+    this.track.style.gridAutoColumns = `calc(${slideWidth}% - ${gap}px)`;
+    this.track.style.gridGap = `${this.options.spacing}px`;
   };
 
   /**
@@ -220,6 +222,7 @@ class CgCarousel {
    */
   initCarousel () {
     this.slides = this.container.querySelectorAll(this.slidesSelector);
+    this.track = this.container.querySelector(this.trackSelector);
     this.slidesLength = this.slides?.length;
     this.checkBreakpoint();
     this.buildCarousel();
@@ -260,7 +263,7 @@ class CgCarousel {
     const runtime = timestamp - this.animationStart;
     const progress = Math.min(runtime / duration, 1);
     const dist = parseInt((trans * progress) + (this.animationCurrentTrans * (1 - progress))).toFixed(2);
-    this.container.style.left = `calc(${dist}% - ${gap}px)`;
+    this.track.style.left = `calc(${dist}% - ${gap}px)`;
 
     if (runtime >= duration) {
       this.animationCurrentTrans = trans;

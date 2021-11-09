@@ -5,10 +5,14 @@
 
 .cg-carousel__container {
   position: relative;
+  left: 0;
+}
+
+.cg-carousel__track {
+  position: relative;
   display: grid;
   grid-auto-columns: 100%;
   grid-auto-flow: column;
-  left: 0;
 }
 
 .cg-carousel__slide {
