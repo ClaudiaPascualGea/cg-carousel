@@ -326,6 +326,7 @@ class CgCarousel {
   clearInfinite () {
     this.isInfinite = false;
     this.track.style.left = 0;
+
     this.slides.forEach((slide, idx) => {
       if (idx >= this.options.slidesPerView) return;
       slide.style.removeProperty('left');
@@ -342,11 +343,11 @@ class CgCarousel {
     if (nextIndex < this.currentIndex) {
       this.setInfinite();
       this.moveSlide(this.currentIndex + 1, nextIndex);
-    } else {
-      this.moveSlide(nextIndex, nextIndex);
+      return;
     }
-  };
 
+    this.moveSlide(nextIndex, nextIndex);
+  };
 
   /**
    * Set Prev Infinity.
@@ -384,9 +385,10 @@ class CgCarousel {
     if (nextIndex > this.currentIndex) {
       this.setPrevInfinite();
       this.moveSlide(this.currentIndex - 1, nextIndex);
-    } else {
-      this.moveSlide(nextIndex, nextIndex);
+      return;
     }
+
+    this.moveSlide(nextIndex, nextIndex);
   };
 
   /**
