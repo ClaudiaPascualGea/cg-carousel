@@ -25,7 +25,7 @@ class CgCarousel {
       loop: options.loop || false,
       autoplay: options.autoplay || false,
       autoplaySpeed: options.autoplaySpeed || 3000,
-      transitionSpeed: options.transitionSpeed || 1000,
+      transitionSpeed: options.transitionSpeed || 650,
       slidesPerView: options.slidesPerView || 1,
       spacing: options.spacing || 0,
     };
@@ -229,6 +229,7 @@ class CgCarousel {
     const gap = (this.options.spacing * (slidesPerView - 1)) / slidesPerView;
     this.track.style.gridAutoColumns = `calc(${slideWidth}% - ${gap}px)`;
     this.track.style.gridGap = `${this.options.spacing}px`;
+    this.track.style.left = 0;
   };
 
   /**
