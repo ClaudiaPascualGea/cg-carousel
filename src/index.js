@@ -35,6 +35,7 @@ class CgCarousel {
     this.animationStart = undefined;
     this.animation = undefined;
     this.animationCurrentTrans = 0;
+    this.animationIndex = 0;
 
     // Animations
     window.requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame ||
@@ -254,15 +255,24 @@ class CgCarousel {
     this.hook('created');
   };
 
+  onAnimationEnd () {
+    const gap = this.options.spacing * this.animationIndex;
+    const trans = this.animationIndex * -100;
+    this.track.style.left = `calc(${trans}% - ${gap}px)`;
+    this.animationCurrentTrans = trans;
+    this.animation = null;
+    this.isInfinite && this.clearInfinite();
+    this.isPrevInfinite && this.clearPrevInfinite();
+  }
+
   /**
    * Cancel Animation frame.
    */
   moveAnimateAbort () {
-    if (this.animation) {
-      window.cancelAnimationFrame(this.animation);
-      this.animation = null;
-      this.animationStart = null;
-    }
+    if (!this.animation) return;
+
+    window.cancelAnimationFrame(this.animation);
+    this.onAnimationEnd();
   };
 
   /**
@@ -279,9 +289,7 @@ class CgCarousel {
     this.track.style.left = `calc(${dist}% - ${gap}px)`;
 
     if (runtime >= duration) {
-      this.animationCurrentTrans = this.currentIndex * -100;
-      this.isInfinite && this.clearInfinite();
-      this.isPrevInfinite && this.clearPrevInfinite();
+      this.onAnimationEnd();
       return;
     }
 
@@ -299,9 +307,13 @@ class CgCarousel {
     const trans = index * -100;
 
     this.animation = window.requestAnimationFrame((timestamp) => {
+      index === this.maxIndex && this.setInfinite();
+      index === -1 && this.setPrevInfinite();
       this.animationStart = timestamp;
+      this.animationIndex = this.currentIndex;
       this.animateLeft(timestamp, trans, gap, this.options.transitionSpeed);
     });
+
     this.currentIndex = cIndex;
 
     this.setUpAutoplay();
@@ -312,12 +324,13 @@ class CgCarousel {
    * Set Infinity.
    */
   setInfinite () {
-    const count = this.options.slidesPerView * this.maxIndex;
     this.isInfinite = true;
-    this.slides.forEach((slide, idx) => {
-      if (idx >= this.options.slidesPerView) return;
+    const count = this.options.slidesPerView * this.maxIndex;
+
+    for (let idx = 0; idx < this.options.slidesPerView; idx++) {
+      const slide = this.slides[idx];
       slide.style.left = `calc((100% * ${count}) + (${this.options.spacing}px * ${count}))`;
-    })
+    }
   };
 
   /**
@@ -325,7 +338,7 @@ class CgCarousel {
    */
   clearInfinite () {
     this.isInfinite = false;
-    this.track.style.left = 0;
+    this.track.style.left = `calc(${this.currentIndex * -100}% - ${this.options.spacing * this.currentIndex}px)`;
 
     this.slides.forEach((slide, idx) => {
       if (idx >= this.options.slidesPerView) return;
@@ -341,7 +354,6 @@ class CgCarousel {
     if (!this.options.loop && nextIndex < this.currentIndex) return;
 
     if (nextIndex < this.currentIndex) {
-      this.setInfinite();
       this.moveSlide(this.currentIndex + 1, nextIndex);
       return;
     }
@@ -383,7 +395,6 @@ class CgCarousel {
     if (!this.options.loop && nextIndex > this.currentIndex) return;
 
     if (nextIndex > this.currentIndex) {
-      this.setPrevInfinite();
       this.moveSlide(this.currentIndex - 1, nextIndex);
       return;
     }
