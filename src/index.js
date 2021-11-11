@@ -93,19 +93,35 @@ class CgCarousel {
   };
 
   /**
-   * On swipe end.
+   * Set swipe direction.
    */
-  onSwipeEnd (e) {
-    if (!this.isTouchableDevice() || !e.changedTouches) return;
+  setSwipeDirection (e) {
     const touch = e.changedTouches[0];
     const distX = touch.pageX - this.swipeStartX;
     const distY = touch.pageY - this.swipeStartY;
+
     if (Math.abs(distX) >= this.swipeThreshold && Math.abs(distY) <= this.swipeRestraint) {
       this.swipeDir = (distX < 0) ? 'left' : 'right';
     } else if (Math.abs(distY) >= this.swipeThreshold && Math.abs(distX) <= this.swipeRestraint) {
       this.swipeDir = (distY < 0) ? 'up' : 'down';
     }
+  };
 
+  /**
+   * On swipe move.
+   */
+  onSwipeMove (e) {
+    if (!this.isTouchableDevice() || !e.changedTouches) return;
+    this.setSwipeDirection(e);
+    if (['left', 'right'].includes(this.swipeDir) && e.cancelable) e.preventDefault();
+  };
+
+  /**
+   * On swipe end.
+   */
+  onSwipeEnd (e) {
+    if (!this.isTouchableDevice() || !e.changedTouches) return;
+    this.setSwipeDirection(e);
     this.handleSwipe();
   };
 
@@ -121,7 +137,7 @@ class CgCarousel {
     this.container.addEventListener('touchstart', (e) => this.onSwipeStart(e), {
       passive: true
     });
-    this.container.addEventListener('touchmove', (e) => e.preventDefault(), false);
+    this.container.addEventListener('touchmove', (e) => this.onSwipeMove(e), false);
     this.container.addEventListener('touchend', (e) => this.onSwipeEnd(e), {
       passive: true
     });
@@ -204,7 +220,7 @@ class CgCarousel {
    * Set Multiple Mode Styles.
    */
   setMultipleModeStyles () {
-    const slidesPerView = this.options.slidesPerView > this.slidesLength ? this.slidesLength : this.options.slidesPerView;
+    const slidesPerView = this.options.slidesPerView;
     const slideWidth = 100 / slidesPerView;
     const gap = (this.options.spacing * (slidesPerView - 1)) / slidesPerView;
     this.container.style.gridAutoColumns = `calc(${slideWidth}% - ${gap}px)`;
