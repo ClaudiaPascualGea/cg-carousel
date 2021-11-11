@@ -3,12 +3,14 @@ class CgCarousel {
    * Constructor
    */
   constructor (selector, options = {}, hooks = []) {
-    // Selectors
     this.container = document.querySelector(selector);
+    if (!this.container) return;
+
+    // Selectors
     this.slidesSelector = options.slidesSelector || '.js-carousel__slide';
     this.trackSelector = options.trackSelector || '.js-carousel__track';
     this.slides = [];
-    this.track = undefined;
+    this.track = this.container.querySelector(this.trackSelector);
     this.slidesLength = 0;
 
     // Breakpoints
@@ -47,6 +49,7 @@ class CgCarousel {
     this.currentIndex = 0;
     this.maxIndex = 0;
     this.isInfinite = false;
+    this.isPrevInfinite = false;
 
     // Swipe Event
     this.swipeStartX = undefined;
@@ -55,7 +58,7 @@ class CgCarousel {
     this.swipeRestraint = 100; // Maximum distance allowed at the same time in perpendicular direction.
     this.swipeDir = undefined;
 
-    if (!this.container) return;
+    if (!this.track) return;
 
     this.addEventListeners();
     this.initCarousel();
@@ -245,7 +248,6 @@ class CgCarousel {
    */
   initCarousel () {
     this.slides = this.container.querySelectorAll(this.slidesSelector);
-    this.track = this.container.querySelector(this.trackSelector);
     this.slidesLength = this.slides?.length;
     this.checkBreakpoint();
     this.buildCarousel();
@@ -279,6 +281,7 @@ class CgCarousel {
     if (runtime >= duration) {
       this.animationCurrentTrans = this.currentIndex * -100;
       this.isInfinite && this.clearInfinite();
+      this.isPrevInfinite && this.clearPrevInfinite();
       return;
     }
 
@@ -344,6 +347,33 @@ class CgCarousel {
     }
   };
 
+
+  /**
+   * Set Prev Infinity.
+   */
+  setPrevInfinite () {
+    this.isPrevInfinite = true;
+    const count = this.options.slidesPerView * this.maxIndex;
+    const maxIdx = count - this.options.slidesPerView;
+
+    for (let idx = this.slides.length - 1; idx >= 0; idx--) {
+      if (idx < maxIdx) return;
+      const slide = this.slides[idx];
+      slide.style.left = `calc((-100% * ${count}) - (${this.options.spacing}px * ${count}))`;
+    }
+  };
+
+  /**
+   * Clear Prev Infinity.
+   */
+  clearPrevInfinite () {
+    this.isPrevInfinite = false;
+    this.track.style.left = `calc(${this.currentIndex * -100}% - ${this.options.spacing * this.currentIndex}px)`;
+    this.slides.forEach((slide, idx) => {
+      slide.style.removeProperty('left');
+    })
+  };
+
   /**
    * Prev Slide.
    */
@@ -351,7 +381,12 @@ class CgCarousel {
     const nextIndex = this.currentIndex === 0 ? this.maxIndex - 1 : this.currentIndex - 1;
     if (!this.options.loop && nextIndex > this.currentIndex) return;
 
-    this.moveSlide(nextIndex, nextIndex);
+    if (nextIndex > this.currentIndex) {
+      this.setPrevInfinite();
+      this.moveSlide(this.currentIndex - 1, nextIndex);
+    } else {
+      this.moveSlide(nextIndex, nextIndex);
+    }
   };
 
   /**
