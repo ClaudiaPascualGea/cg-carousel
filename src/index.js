@@ -256,6 +256,9 @@ class CgCarousel {
     this.hook('created');
   };
 
+  /**
+   * On Animation End.
+   */
   onAnimationEnd () {
     const gap = this.options.spacing * this.animationIndex;
     const trans = this.animationIndex * -100;
@@ -319,6 +322,7 @@ class CgCarousel {
 
     this.setUpAutoplay();
     this.setButtonsVisibility();
+    this.hook('moved');
   };
 
   /**
@@ -408,7 +412,7 @@ class CgCarousel {
    */
   moveToSlide (index) {
     if (index === this.currentIndex) return;
-    this.moveSlide(index);
+    this.moveSlide(index, index);
   };
 
   /**
