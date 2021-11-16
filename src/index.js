@@ -55,7 +55,7 @@ class CgCarousel {
     // Swipe Event
     this.swipeStartX = undefined;
     this.swipeStartY = undefined;
-    this.swipeThreshold = 150; // Required min distance traveled to be considered swipe.
+    this.swipeThreshold = 100; // Required min distance traveled to be considered swipe.
     this.swipeRestraint = 100; // Maximum distance allowed at the same time in perpendicular direction.
     this.swipeDir = undefined;
 
@@ -211,8 +211,8 @@ class CgCarousel {
    * Clear Carousel Styles.
    */
   clearCarouselStyles () {
-    const containerStyles = ['grid-auto-columns', 'gap', 'transition', 'left'];
-    containerStyles.map(style => this.container.style.removeProperty(style));
+    const trackStyles = ['grid-auto-columns', 'gap', 'transition', 'left'];
+    trackStyles.map(style => this.track.style.removeProperty(style));
     const slideStyles = ['grid-column-start', 'grid-column-end', 'grid-row-start', 'grid-row-end', 'left'];
     this.slides.forEach(slide => {
       slideStyles.map(style => slide.style.removeProperty(style));
@@ -289,7 +289,7 @@ class CgCarousel {
   animateLeft (timestamp, trans, gap, duration) {
     const runtime = timestamp - this.animationStart;
     const progress = Math.min(runtime / duration, 1);
-    const dist = parseInt((trans * progress) + (this.animationCurrentTrans * (1 - progress))).toFixed(2);
+    const dist = ((trans * progress) + (this.animationCurrentTrans * (1 - progress))).toFixed(2);
     this.track.style.left = `calc(${dist}% - ${gap}px)`;
 
     if (runtime >= duration) {
@@ -389,7 +389,7 @@ class CgCarousel {
     this.track.style.left = `calc(${this.currentIndex * -100}% - ${this.options.spacing * this.currentIndex}px)`;
     this.slides.forEach((slide, idx) => {
       slide.style.removeProperty('left');
-    })
+    });
   };
 
   /**
