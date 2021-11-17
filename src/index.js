@@ -288,7 +288,8 @@ class CgCarousel {
    */
   animateLeft (timestamp, trans, gap, duration) {
     const runtime = timestamp - this.animationStart;
-    const progress = Math.min(runtime / duration, 1);
+    const easing = t => 1 - Math.pow(1 - t, 5);
+    const progress = easing(runtime / duration);
     const dist = ((trans * progress) + (this.animationCurrentTrans * (1 - progress))).toFixed(2);
     this.track.style.left = `calc(${dist}% - ${gap}px)`;
 
