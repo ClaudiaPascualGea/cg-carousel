@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>CG Carousel</title>
   <link rel="icon" href="./docs/favicon.ico">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -27,14 +28,16 @@
     <h2 class="cg-example__title">Example 1</h2>
     <div class="cg-carousel">
       <div class="cg-carousel__container" id="js-carousel-1">
-        <div class="cg-carousel__slide cg-carousel__slide-rounded js-carousel__slide">Slide 1</div>
-        <div class="cg-carousel__slide cg-carousel__slide-rounded js-carousel__slide">Slide 2</div>
-        <div class="cg-carousel__slide cg-carousel__slide-rounded js-carousel__slide">Slide 3</div>
-        <div class="cg-carousel__slide cg-carousel__slide-rounded js-carousel__slide">Slide 4</div>
-        <div class="cg-carousel__slide cg-carousel__slide-rounded js-carousel__slide">Slide 5</div>
-        <div class="cg-carousel__slide cg-carousel__slide-rounded js-carousel__slide">Slide 6</div>
-        <div class="cg-carousel__slide cg-carousel__slide-rounded js-carousel__slide">Slide 7</div>
-        <div class="cg-carousel__slide cg-carousel__slide-rounded js-carousel__slide">Slide 8</div>
+        <div class="cg-carousel__track js-carousel__track">
+          <div class="cg-carousel__slide cg-carousel__slide-rounded js-carousel__slide">Slide 1</div>
+          <div class="cg-carousel__slide cg-carousel__slide-rounded js-carousel__slide">Slide 2</div>
+          <div class="cg-carousel__slide cg-carousel__slide-rounded js-carousel__slide">Slide 3</div>
+          <div class="cg-carousel__slide cg-carousel__slide-rounded js-carousel__slide">Slide 4</div>
+          <div class="cg-carousel__slide cg-carousel__slide-rounded js-carousel__slide">Slide 5</div>
+          <div class="cg-carousel__slide cg-carousel__slide-rounded js-carousel__slide">Slide 6</div>
+          <div class="cg-carousel__slide cg-carousel__slide-rounded js-carousel__slide">Slide 7</div>
+          <div class="cg-carousel__slide cg-carousel__slide-rounded js-carousel__slide">Slide 8</div>
+        </div>
       </div>
 
       <div class="cg-carousel__btns">
@@ -47,6 +50,8 @@
       const options1 = {
         slidesPerView: 1,
         spacing: 10,
+        loop: true,
+        transitionSpeed: 1500,
         breakpoints: {
           768: {
             slidesPerView: 2,
@@ -74,10 +79,12 @@
     <h2 class="cg-example__title">Example 2</h2>
     <div class="cg-carousel">
       <div class="cg-carousel__container" id="js-carousel-2">
-        <div class="cg-carousel__slide js-carousel__slide">Slide 1</div>
-        <div class="cg-carousel__slide js-carousel__slide">Slide 2</div>
-        <div class="cg-carousel__slide js-carousel__slide">Slide 3</div>
-        <div class="cg-carousel__slide js-carousel__slide">Slide 4</div>
+        <div class="cg-carousel__track js-carousel__track">
+          <div class="cg-carousel__slide js-carousel__slide">Slide 1</div>
+          <div class="cg-carousel__slide js-carousel__slide">Slide 2</div>
+          <div class="cg-carousel__slide js-carousel__slide">Slide 3</div>
+          <div class="cg-carousel__slide js-carousel__slide">Slide 4</div>
+        </div>
       </div>
 
       <div class="cg-carousel__btns">
@@ -110,16 +117,18 @@
     <h2 class="cg-example__title">Example 3</h2>
     <div class="cg-carousel">
       <div class="cg-carousel__container" id="js-carousel-3">
-        <div class="cg-carousel__slide cg-carousel__slide-rounded js-carousel__slide">Slide 1</div>
-        <div class="cg-carousel__slide cg-carousel__slide-rounded js-carousel__slide">Slide 2</div>
-        <div class="cg-carousel__slide cg-carousel__slide-rounded js-carousel__slide">Slide 3</div>
-        <div class="cg-carousel__slide cg-carousel__slide-rounded js-carousel__slide">Slide 4</div>
-        <div class="cg-carousel__slide cg-carousel__slide-rounded js-carousel__slide">Slide 5</div>
-        <div class="cg-carousel__slide cg-carousel__slide-rounded js-carousel__slide">Slide 6</div>
-        <div class="cg-carousel__slide cg-carousel__slide-rounded js-carousel__slide">Slide 7</div>
-        <div class="cg-carousel__slide cg-carousel__slide-rounded js-carousel__slide">Slide 8</div>
-        <div class="cg-carousel__slide cg-carousel__slide-rounded js-carousel__slide">Slide 9</div>
-        <div class="cg-carousel__slide cg-carousel__slide-rounded js-carousel__slide">Slide 10</div>
+        <div class="cg-carousel__track js-carousel__track">
+          <div class="cg-carousel__slide cg-carousel__slide-rounded js-carousel__slide">Slide 1</div>
+          <div class="cg-carousel__slide cg-carousel__slide-rounded js-carousel__slide">Slide 2</div>
+          <div class="cg-carousel__slide cg-carousel__slide-rounded js-carousel__slide">Slide 3</div>
+          <div class="cg-carousel__slide cg-carousel__slide-rounded js-carousel__slide">Slide 4</div>
+          <div class="cg-carousel__slide cg-carousel__slide-rounded js-carousel__slide">Slide 5</div>
+          <div class="cg-carousel__slide cg-carousel__slide-rounded js-carousel__slide">Slide 6</div>
+          <div class="cg-carousel__slide cg-carousel__slide-rounded js-carousel__slide">Slide 7</div>
+          <div class="cg-carousel__slide cg-carousel__slide-rounded js-carousel__slide">Slide 8</div>
+          <div class="cg-carousel__slide cg-carousel__slide-rounded js-carousel__slide">Slide 9</div>
+          <div class="cg-carousel__slide cg-carousel__slide-rounded js-carousel__slide">Slide 10</div>
+        </div>
       </div>
 
       <div class="cg-carousel__btns">
@@ -133,6 +142,7 @@
         loop: false,
         slidesPerView: 1,
         spacing: 10,
+        transitionSpeed: 2000,
         breakpoints: {
           768: {
             slidesPerView: 2,
@@ -160,10 +170,12 @@
     <h2 class="cg-example__title">Example 4</h2>
     <div class="cg-carousel">
       <div class="cg-carousel__container" id="js-carousel-4">
-        <div class="cg-carousel__slide js-carousel__slide">Slide 1</div>
-        <div class="cg-carousel__slide js-carousel__slide">Slide 2</div>
-        <div class="cg-carousel__slide js-carousel__slide">Slide 3</div>
-        <div class="cg-carousel__slide js-carousel__slide">Slide 4</div>
+        <div class="cg-carousel__track js-carousel__track">
+          <div class="cg-carousel__slide js-carousel__slide">Slide 1</div>
+          <div class="cg-carousel__slide js-carousel__slide">Slide 2</div>
+          <div class="cg-carousel__slide js-carousel__slide">Slide 3</div>
+          <div class="cg-carousel__slide js-carousel__slide">Slide 4</div>
+        </div>
       </div>
 
       <div class="cg-carousel__btns">
@@ -191,6 +203,5 @@
       prev4.addEventListener('click', () => carousel4.prev());
     </script>
   </div>
-
 </body>
 </html>
